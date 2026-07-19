@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge'
+import { appParams } from '@/lib/app-params';
 
 export default function VisualEditAgent() {
 	// this functions job is to receive first a message from the parent window, to set or unset visual edits mode. 
@@ -411,9 +412,14 @@ export default function VisualEditAgent() {
 			}
 		};
 
+		const trustedOrigins = new Set([
+			window.location.origin,
+			appParams.serverUrl ? new URL(appParams.serverUrl).origin : null
+		].filter(Boolean));
+
 		const handleMessage = (event) => {
-			// Check origin if desired
-			//if (event.origin !== 'parent-origin') return;
+			// Only accept messages from trusted origins (app itself or Base44 builder/backend)
+			if (!trustedOrigins.has(event.origin)) return;
 
 			const message = event.data;
 
